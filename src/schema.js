@@ -28,6 +28,10 @@ const QueryType = new GraphQLObjectType({
       type: new GraphQLList(PersonType),
       resolve: () => peopleData,
     },
+    currentPerson: {
+      type: PersonType,
+      resolve: () => peopleData[Math.floor(Math.random() * peopleData.length)],
+    }
   },
 });
 

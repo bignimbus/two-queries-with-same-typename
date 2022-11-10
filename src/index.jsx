@@ -22,6 +22,15 @@ const ALL_PEOPLE = gql`
   }
 `;
 
+const CURRENT_PERSON = gql`
+  query CurrentPerson {
+    currentPerson {
+      id
+      name
+    }
+  }
+`;
+
 const ADD_PERSON = gql`
   mutation AddPerson($name: String) {
     addPerson(name: $name) {
@@ -33,10 +42,16 @@ const ADD_PERSON = gql`
 
 function App() {
   const [name, setName] = useState('');
+  // const {
+  //   data: peopleData,
+  //   loading: peopleLoading,
+  // } = useQuery(ALL_PEOPLE);
+
   const {
-    loading,
-    data,
-  } = useQuery(ALL_PEOPLE);
+    refetch: currentPersonRefetch,
+    data: currentPersonData,
+    loading: currentPersonLoading,
+  } = useQuery(CURRENT_PERSON);
 
   const [addPerson] = useMutation(ADD_PERSON, {
     update: (cache, { data: { addPerson: addPersonData } }) => {
@@ -78,23 +93,39 @@ function App() {
           Add person
         </button>
       </div>
+      <h2>Current Person</h2>
+      {currentPersonLoading ? (
+        <p>Loading…</p>
+      ) : (
+        <>
+          <p>
+            { currentPersonData?.currentPerson?.id }: { currentPersonData?.currentPerson?.name }
+          </p>
+          <div>
+            <button type="button" onClick={() => currentPersonRefetch()}>Refetch</button>
+          </div>
+        </>
+      )}
+      {/*
       <h2>Names</h2>
-      {loading ? (
+      {peopleLoading ? (
         <p>Loading…</p>
       ) : (
         <ul>
-          {data?.people.map(person => (
+          {peopleData?.people.map(person => (
             <li key={person.id}>{person.name}</li>
           ))}
         </ul>
       )}
+      */}
     </main>
   );
 }
 
 const client = new ApolloClient({
+  link,
+  connectToDevTools: true,
   cache: new InMemoryCache(),
-  link
 });
 
 const container = document.getElementById("root");
